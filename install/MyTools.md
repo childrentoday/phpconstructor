@@ -60,11 +60,15 @@ h2 заголовок второго уровня
  dir /js
  
  ```html
+<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 ```
 
 ```php
-<?php here_pagecontent(); ?>
+<?php
+here_pagecontent(); 
+require_once __DIR__ . '/config.php';
+?>
 ```
 
 
