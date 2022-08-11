@@ -23,8 +23,7 @@ NetBeans          | <http://netbeans.apache.org/download/index.html>
 
 
 
-
-Регистрируемся на сайте
+### 2. URL-адреса - Регистрируемся на следующих сайтах
 https://bitbucket.org/
 https://github.com/
 
