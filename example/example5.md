@@ -11,9 +11,11 @@
         
     // --выполняем подключение к серверу MySQL и выбираем с какой базой будем работать
     $connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
     // --выполняем SQL запрос
     $result = mysqli_query($connect, "SELECT * FROM users ORDER BY name");
-    // --Получение количества строк в наборе результатов
+   
+   // --Получение количества строк в наборе результатов
     $row_cnt = mysqli_num_rows($result);
 
     printf("Получено %d строк.\n", $row_cnt);
