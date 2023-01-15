@@ -39,9 +39,73 @@
     // Чтобы заменить несколько слов в строке, мы можем использовать элементы массива:
     echo str_replace(array('Мишка', 'Тигр'), array('Лисица', 'Лама'), 'Шёл по улице Мишка, видит Тигр веселится. Ты Мишка не балуй');
 
+    // Вставка новых элементов в массив: (Inserting new items into an array:)
+    $names = array();
+    array_push($names, 'Заяц', 'Волк', 'Ежиха', 'Слон');
+
+    // Вывесчти массив
+    echo "<pre>";
+    var_dump($names);
+    echo "</pre>";
 ```
 
+```php
+    // Удалить любой элемент в массиве
+    unset($names[3]);
 
+    // Вывесчти массив
+    echo "<pre>";
+    var_dump($names);
+    echo "</pre>";
+
+```
+
+```php
+    // Обратная сортировка массива
+    $reversed = array_reverse($names);
+
+    // Вывесчти массив
+    echo "<pre>";
+    var_dump($reversed);
+    echo "</pre>";  
+
+```
+
+```php
+    // Создать два массива
+    $array1 = array('Мишка', 'Тигр', 'Аист');
+    $array2 = array('Лев', 'Тюлень');
+    // Объединить два ()или более) массива
+    $merged_array = array_merge($array1, $array2);
+
+    // Вывесчти массив
+    echo "<pre>";
+    var_dump($merged_array);
+    echo "</pre>";
+
+```
+
+```php
+    // Возвращает только ключи массива (Return only the array keys:)
+    $keys = array_keys(array('Животное' => 'Медведь', 'Вес' => 110));
+
+    // Вывесчти только ключи массива
+    echo "<pre>";
+    var_dump($keys);
+    echo "</pre>";
+
+```
+
+```php
+    // Сортировка массива в порядке возрастания:
+    sort($merged_array);
+
+    // Вывесчти массив
+    echo "<pre>";
+    var_dump($merged_array);
+    echo "</pre>";  
+
+```
 
 
 # 1
