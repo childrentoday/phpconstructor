@@ -1,3 +1,5 @@
+POST и GET обработка запросов
+
 # [POST и GET]
 
 ##  Работа с GET И POST запросами
@@ -33,5 +35,10 @@
     }
 
 
+
+```
+
+```html
+  <button onclick="window.location.href='example8.php?animals=Мишка';">Мой зверь</button>
 
 ```
