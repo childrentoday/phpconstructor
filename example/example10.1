@@ -1,0 +1,43 @@
+<?php
+// Настройки подключения к базе данных
+$host = 'localhost';
+$db   = 'testing';
+$user = 'root';
+$pass = '';
+
+$conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+// Обработка активации по токену
+if (isset($_GET['token'])) {
+    $token = $_GET['token'];
+
+    // Проверка наличия ссылки с таким токеном и статусом "создано"
+    $stmt = $conn->prepare("SELECT * FROM links WHERE token=? AND status='created'");
+    $stmt->execute([$token]);
+    $link = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($link) {
+        // Обновление статуса и времени активации
+        $update = $conn->prepare("UPDATE links SET status='activated', activated_at=NOW() WHERE id=?");
+        $update->execute([$link['id']]);
+        $message = "Ссылка успешно активирована!";
+    } else {
+        $message = "Ссылка уже активирована или не найдена.";
+    }
+} else {
+    $message = "Нет токена.";
+}
+?>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Активация ссылки</title>
+</head>
+<body>
+<h1><?= htmlspecialchars($message) ?></h1>
+<p><a href="index.php">Вернуться к списку ссылок</a></p>
+</body>
+</html>
