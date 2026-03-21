@@ -1,0 +1,177 @@
+Генератор ссылок 
+<?php
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['user_id'] = 1; // Для теста
+}
+
+$host = 'localhost';
+$db = 'testing';
+$user = 'root';
+$pass = '';
+
+$conn = mysqli_connect($host, $user, $pass, $db);
+if (!$conn) {
+    die("Ошибка подключения: " . mysqli_connect_error());
+}
+
+function getUserLinks($conn, $user_id) {
+    $links = [];
+    $sql = "SELECT * FROM links WHERE user_id = ?";
+    $stmt = mysqli_prepare($conn, $sql);
+    mysqli_stmt_bind_param($stmt, "i", $user_id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $links[] = $row;
+        }
+        mysqli_free_result($result);
+    }
+    mysqli_stmt_close($stmt);
+    return $links;
+}
+
+function generateLinksTable($links, $prefix) {
+    echo '<table>
+<tr>
+    <th>ID</th>
+    <th>Короткая ссылка</th>
+    <th>Оригинальная ссылка</th>
+    <th>Статус</th>
+    <th>Дата</th>
+    <th>Действия</th>
+</tr>';
+    foreach ($links as $link) {
+        $id = $link['id'];
+        $direct_link = htmlspecialchars($link['direct_link']);
+        $short_link = htmlspecialchars($link['short_link']);
+        $status = htmlspecialchars($link['status']);
+        $created_at = htmlspecialchars($link['created_at']);
+        $token = $link['token'];
+        echo "<tr>
+    <td>$id</td>
+    <td>$short_link</td>
+    <td>
+        <input type='text' value='$direct_link' id='{$prefix}link$id' style='width:80%;' readonly />
+        <button onclick=\"copyToClipboard('{$prefix}link$id')\">Копировать</button>
+    </td>
+    <td>$status</td>
+    <td>$created_at</td>
+    <td>";
+        if ($status === 'created') {
+            echo "<a href='invite.php?token=" . urlencode($token) . "'><button>Активировать</button></a>";
+        } else {
+            echo "<button disabled>Активировано</button>";
+        }
+        echo "</td></tr>";
+    }
+    echo '</table>';
+}
+
+// Получение общего количества ссылок и активных
+$result_total = mysqli_query($conn, "SELECT COUNT(*) AS total FROM links");
+$total_links = 0;
+$active_links = 0;
+if ($result_total) {
+    $row_total = mysqli_fetch_assoc($result_total);
+    $total_links = $row_total['total'];
+    mysqli_free_result($result_total);
+}
+
+$result_active = mysqli_query($conn, "SELECT COUNT(*) AS active FROM links WHERE status='created'");
+if ($result_active) {
+    $row_active = mysqli_fetch_assoc($result_active);
+    $active_links = $row_active['active'];
+    mysqli_free_result($result_active);
+}
+
+$result_users = mysqli_query($conn, "SELECT * FROM users");
+$users = [];
+if ($result_users) {
+    while ($row = mysqli_fetch_assoc($result_users)) {
+        $users[] = $row;
+    }
+    mysqli_free_result($result_users);
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $user_id = intval($_POST['user_id']);
+    $token = bin2hex(random_bytes(8));
+    $created_at = date('Y-m-d H:i:s');
+    $direct_link = "http://linkgenerator/invite.php?token=$token";
+    $short_link = "";
+
+    $stmt = mysqli_prepare($conn, "INSERT INTO links (token, created_at, status, direct_link, short_link, user_id) VALUES (?, ?, 'created', ?, ?, ?)");
+    mysqli_stmt_bind_param($stmt, "ssssi", $token, $created_at, $direct_link, $short_link, $user_id);
+    mysqli_stmt_execute($stmt);
+    mysqli_stmt_close($stmt);
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
+}
+
+$user_links = getUserLinks($conn, $_SESSION['user_id']);
+?>
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Генератор и мои ссылки</title>
+<style>
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #ccc; padding: 8px; }
+  button { padding: 4px 8px; }
+</style>
+</head>
+<body>
+<h1>Генератор и мои ссылки</h1>
+
+<h2>Статистика</h2>
+<p>Всего ссылок: <?= $total_links ?></p>
+<p>Активных ссылок: <?= $active_links ?></p>
+
+<h2>Создать новую ссылку</h2>
+<form method="post" action="">
+    <label for="user_id">Выберите создателя:</label>
+    <select name="user_id" id="user_id" required>
+        <?php foreach ($users as $user): ?>
+            <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['username']) ?> (<?= htmlspecialchars($user['email']) ?>)</option>
+        <?php endforeach; ?>
+    </select>
+    <button type="submit">Создать ссылку</button>
+</form>
+
+<h2>Ваши ссылки</h2>
+<?php generateLinksTable($user_links, ''); ?>
+
+<h2>Все ссылки (от администратора)</h2>
+<?php
+$result_links = mysqli_query($conn, "SELECT * FROM links ORDER BY created_at DESC");
+if ($result_links):
+    $all_links = [];
+    while ($link = mysqli_fetch_assoc($result_links)) {
+        $all_links[] = $link;
+    }
+    mysqli_free_result($result_links);
+    generateLinksTable($all_links, 'admin');
+endif;
+?>
+
+<script>
+function copyToClipboard(id) {
+    var copyText = document.getElementById(id);
+    copyText.select();
+    try {
+        document.execCommand("copy");
+        alert("Ссылка скопирована");
+    } catch (err) {
+        alert("Невозможно скопировать");
+    }
+}
+</script>
+<?php mysqli_close($conn); ?>
+</body>
+</html>
