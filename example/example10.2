@@ -1,0 +1,113 @@
+-- Время создания: Мар 21 2026 г., 22:00
+-- Версия сервера: 10.3.13-MariaDB-log
+-- Версия PHP: 7.3.9
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- База данных: `testing`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `links`
+--
+
+CREATE TABLE `links` (
+  `id` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `activated_at` datetime DEFAULT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'created',
+  `direct_link` varchar(255) NOT NULL,
+  `short_link` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Дамп данных таблицы `links`
+--
+
+INSERT INTO `links` (`id`, `token`, `created_at`, `activated_at`, `status`, `direct_link`, `short_link`, `user_id`) VALUES
+(39, '70b259a6ed96e181', '2026-03-15 20:09:33', '2026-03-15 20:11:35', 'activated', 'http://linkgenerator/invite.php?token=70b259a6ed96e181', '', 1),
+(40, '1a614794fac9f371', '2026-03-15 20:09:33', NULL, 'created', 'http://linkgenerator/invite.php?token=1a614794fac9f371', '', 1),
+(41, '07319a971a4d0755', '2026-03-15 20:09:36', NULL, 'created', 'http://linkgenerator/invite.php?token=07319a971a4d0755', '', 2);
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Дамп данных таблицы `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password`) VALUES
+(1, 'admin', 'password123'),
+(2, 'usernamee', '$2y$10$tyAeAu/E02OTOWG10oNcHe/ss0hqOqkyoJvJXo0jXRfZUJNWmqmgy'),
+(3, 'adminn', 'password1234');
+
+--
+-- Индексы сохранённых таблиц
+--
+
+--
+-- Индексы таблицы `links`
+--
+ALTER TABLE `links`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Индексы таблицы `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT для сохранённых таблиц
+--
+
+--
+-- AUTO_INCREMENT для таблицы `links`
+--
+ALTER TABLE `links`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+
+--
+-- AUTO_INCREMENT для таблицы `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- Ограничения внешнего ключа сохраненных таблиц
+--
+
+--
+-- Ограничения внешнего ключа таблицы `links`
+--
+ALTER TABLE `links`
+  ADD CONSTRAINT `links_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
